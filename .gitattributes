@@ -7,17 +7,6 @@
 # Preferred: if you moved to .pq for Power Query sources, force it to PowerQuery:
 *.pq linguist-language=PowerQuery
 
-# If you still have .m files (ambiguous on GitHub), only classify them in PQ folders.
-# Add/rename folders below to match your new repo structure.
-m/**            linguist-language=PowerQuery
-powerquery/**   linguist-language=PowerQuery
-queries/**      linguist-language=PowerQuery
-functions/**    linguist-language=PowerQuery
-params/**       linguist-language=PowerQuery
-
-# If your root-level query files still exist (old pattern), keep this too:
-q_*.m           linguist-language=PowerQuery
-
 ###############################################################################
 # Optional hygiene (cross-platform)
 ###############################################################################
