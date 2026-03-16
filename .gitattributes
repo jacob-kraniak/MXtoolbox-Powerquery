@@ -1,0 +1,17 @@
+# Force GitHub Linguist to syntax-highlight Power Query M correctly.
+# .gitattributes overrides affect both syntax highlighting and language stats on GitHub. [1](https://github.com/github-linguist/linguist/blob/master/docs/overrides.md)[2](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-repository-languages)
+
+# Your repo uses .m for Power Query M scripts (Excel/Power BI),
+# but .m is ambiguous on GitHub (MATLAB/Objective-C/Mathematica).
+# Override everything under known Power Query folders + root query files.
+
+# Root-level queries (q_*.m)
+q_*.m linguist-language=PowerQuery
+
+# Power Query folders
+functions/**/*.m linguist-language=PowerQuery
+params/**/*.m    linguist-language=PowerQuery
+queries/**/*.m   linguist-language=PowerQuery
+
+# Optional: if you later add .pq files (commonly used with PQ tooling), classify those too
+*.pq linguist-language=PowerQuery
