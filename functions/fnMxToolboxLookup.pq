@@ -5,7 +5,7 @@
 let
     // 1) Build URL based on the command
     //    Example (DMARC):
-    //      https://api.mxtoolbox.com/api/v1/lookup/dmarc?argument=ontimetruckers.com
+    //      https://api.mxtoolbox.com/api/v1/lookup/dmarc?argument=github.com
     BaseUrl = "https://api.mxtoolbox.com/api/v1/lookup/" & command,
     Url     = BaseUrl & "?" &
               Uri.BuildQueryString(
