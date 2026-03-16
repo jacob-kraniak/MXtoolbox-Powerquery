@@ -1,17 +1,26 @@
-# Force GitHub Linguist to syntax-highlight Power Query M correctly.
-# .gitattributes overrides affect both syntax highlighting and language stats on GitHub. [1](https://github.com/github-linguist/linguist/blob/master/docs/overrides.md)[2](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-repository-languages)
+# GitHub Linguist overrides: affect syntax highlighting + language stats. [1](https://github.com/jacob-kraniak/MXtoolbox-Powerquery/issues)[4](https://blog.revathskumar.com/2024/03/github-override-language-definitions.html)
 
-# Your repo uses .m for Power Query M scripts (Excel/Power BI),
-# but .m is ambiguous on GitHub (MATLAB/Objective-C/Mathematica).
-# Override everything under known Power Query folders + root query files.
+###############################################################################
+# Power Query M language
+###############################################################################
 
-# Root-level queries (q_*.m)
-q_*.m linguist-language=PowerQuery
-
-# Power Query folders
-functions/**/*.m linguist-language=PowerQuery
-params/**/*.m    linguist-language=PowerQuery
-queries/**/*.m   linguist-language=PowerQuery
-
-# Optional: if you later add .pq files (commonly used with PQ tooling), classify those too
+# Preferred: if you moved to .pq for Power Query sources, force it to PowerQuery:
 *.pq linguist-language=PowerQuery
+
+# If you still have .m files (ambiguous on GitHub), only classify them in PQ folders.
+# Add/rename folders below to match your new repo structure.
+m/**            linguist-language=PowerQuery
+powerquery/**   linguist-language=PowerQuery
+queries/**      linguist-language=PowerQuery
+functions/**    linguist-language=PowerQuery
+params/**       linguist-language=PowerQuery
+
+# If your root-level query files still exist (old pattern), keep this too:
+q_*.m           linguist-language=PowerQuery
+
+###############################################################################
+# Optional hygiene (cross-platform)
+###############################################################################
+* text=auto
+*.pq text eol=lf
+*.m  text eol=lf
