@@ -1,4 +1,4 @@
-// q_MxToolboxDetail – one row per list item
+// q_MxToolboxOutputDetails – one row per list item
 let
     // Start from the parent query
     Source = q_MxToolboxOutput,
