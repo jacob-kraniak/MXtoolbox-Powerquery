@@ -1,3 +1,4 @@
+```markdown
 SOAR Playbook 5 — Automated Containment (OPTIONAL / PHASE 2)
 Purpose
 Safely contain high‑risk domains only when corroborated by internal telemetry.
@@ -29,3 +30,4 @@ Safety Controls
 	• Manual override available
 Notes
 This playbook should be piloted on a small domain set only.
+```
