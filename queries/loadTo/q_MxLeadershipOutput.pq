@@ -1,35 +1,43 @@
-// q_MxLeadershipOutput (new)
+/*
+==============================================================================
+ Query Name : q_MxLeadershipOutput
+ SOAR Stage : SOAR 3 – Leadership Reporting View
+ Load To    : Enabled
+ Expansion  : NONE
+ Purpose    : Produce a leadership-ready reporting dataset
+              from SOAR‑3 scalar output.
+ Dependencies :
+   - q_MxToolboxOutput_SOAR3
+==============================================================================
+*/
 let
-    Source = q_MxToolboxOutput_Raw,
+    Source = q_MxToolboxOutput_SOAR3,
 
-    // Keep only leadership / SOAR 3 & SOAR 4 reporting needs:
-    // Tier logic can be added here or in a separate tiering query
     Selected =
         Table.SelectColumns(
             Source,
             {
                 "SenderDomain",
-                "MxToolbox Output.Command",
-                "MxToolbox Output.MxRep",
-                "MxToolbox Output.TimeRecorded",
-                "MxToolbox Output.FailedCount",
-                "MxToolbox Output.WarningsCount",
-                "MxToolbox Output.TimeoutsCount",
-                "MxToolbox Output.DnsProvider",
-                "MxToolbox Output.ReportingNameServer",
-                "MxToolbox Output.HasDmarcRecord"
+                "MxCommand",
+                "MxReputation",
+                "MxTimeRecorded",
+                "FailedCount",
+                "WarningsCount",
+                "TimeoutsCount",
+                "DnsProvider",
+                "ReportingNameServer",
+                "HasDmarcRecord"
             }
         ),
 
-    // Example simple “EvidenceSummary” (cheap string)
     EvidenceSummary =
         Table.AddColumn(
             Selected,
             "EvidenceSummary",
             each
-                "F:" & Text.From([MxToolbox Output.FailedCount]) &
-                " W:" & Text.From([MxToolbox Output.WarningsCount]) &
-                " T:" & Text.From([MxToolbox Output.TimeoutsCount]),
+                "F:" & Text.From([FailedCount]) &
+                " W:" & Text.From([WarningsCount]) &
+                " T:" & Text.From([TimeoutsCount]),
             type text
         )
 in

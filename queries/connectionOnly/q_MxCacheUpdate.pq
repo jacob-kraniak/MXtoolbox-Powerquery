@@ -4,28 +4,29 @@
  SOAR Stage : SOAR 1 – Cache Maintenance
  Load To    : Connection Only
  Expansion  : NONE
- Purpose    : Merge newly normalized SOAR 2 results into the persisted
-              MXToolbox cache and retain the most recent entry per
-              Domain + Command.
+ Purpose    : Merge new SOAR 2 scalar results into cache and retain the
+              most recent entry per Domain + Command.
  Dependencies :
-   - q_MxResultsCache
+   - q_MxResultsCache_Seed
    - q_MxToolboxOutput
  Guardrails :
+   - MUST NOT load to worksheet
    - MUST NOT expand raw API output
-   - Expects SOAR 2 scalar fields only
 ==============================================================================
 */
-
 let
-    Cache = q_MxResultsCache,
+    // Existing cache (safe read)
+    Cache =
+        Table.Buffer(q_MxResultsCache_Seed),
 
-    // Adapt SOAR 2 output to cache schema
+    // Latest SOAR 2 output
     Latest =
-        Table.TransformColumns(
+        Table.TransformColumnTypes(
             q_MxToolboxOutput,
             {
-                {"SenderDomain", each _, type text},
-                {"MxCommand", each _, type text}
+                {"SenderDomain", type text},
+                {"MxCommand", type text},
+                {"MxTimeRecorded", type datetime}
             }
         ),
 
@@ -54,17 +55,6 @@ let
         Table.Distinct(
             Sorted,
             {"Domain", "MxCommand"}
-        ),
-
-    CacheForTable =
-        Table.TransformColumnTypes(
-            Deduped,
-            {
-                {"Domain", type text},
-                {"MxCommand", type text},
-                {"MxReputation", type any},
-                {"MxTimeRecorded", type datetime}
-            }
         )
 in
-    CacheForTable
+    Deduped
