@@ -1,44 +1,32 @@
-flowchart LR
-  %% Styles
-  classDef start fill:#d1fae5,stroke:#065f46,stroke-width:2px;
-  classDef endNode fill:#e0f2fe,stroke:#075985,stroke-width:2px;
-  classDef control fill:#fff7ed,stroke:#9a3412,stroke-dasharray: 5 3;
-  classDef proc fill:#f8fafc,stroke:#334155;
-  classDef table fill:#fef3c7,stroke:#92400e,stroke-width:1.5px;
-  classDef note fill:#f1f5f9,stroke:#475569,stroke-dasharray: 3 3;
-
-  S((START<br/>Refresh)):::start
-
-  %% Inputs
-  Env[(tbl_EnvelopeResults)]:::table
-  Cache[(tblMxCache<br/>persisted)]:::table
-
-  %% Controls
-  Cap[/pMaxAPICalls/]:::control
-  TTL[/pCacheDays/]:::control
-  Delay[/pMinDelayMs/]:::control
-
-  %% Process
-  Ingest[Normalize domains<br/>Generate Domain × Command pairs]:::proc
-  Lookup[Cached MXToolbox lookups<br/>Only call API on cache miss]:::proc
-  Output[LeadershipView<br/>Tier signals + EvidenceSummary]:::proc
-
-  EndLead(((END<br/>Leadership Report))):::endNode
-
-  %% Optional evidence
-  subgraph Evidence["Optional Evidence Path<br/>Enable only for investigations"]
-    Ev[SOAR4_Evidence<br/>Expanded check details]:::proc
-  end
-  class Evidence note
-
-  %% Flow
-  S --> Env --> Ingest
-  Cap -.-> Ingest
-
-  Ingest --> Lookup
-  Cache --> Lookup
-  TTL -.-> Lookup
-  Delay -.-> Lookup
-
-  Lookup --> Output --> EndLead
-  Lookup -.-> Ev
+SOAR Playbook 1 — Bulk Domain Reputation Ingestion (FOUNDATION)
+Purpose
+Perform bulk domain reputation lookups using MXToolbox REST API and normalize results into a consistent, auditable dataset.
+Trigger
+	• Manual execution (initial POC run)
+	• Scheduled execution (daily / weekly)
+Inputs
+	• CSV or list of domains (≥400)
+	• MXToolbox API key
+	• Rate‑limit configuration
+Preconditions
+	• Domains are normalized (lowercase, no empty values)
+	• API key is securely stored
+	• No automated enforcement enabled
+Actions
+	1. Load domain list
+	2. De‑duplicate domains
+	3. Perform MXToolbox API lookup per domain
+	4. Capture full raw API response
+	5. Normalize response fields
+	6. Assign reputation tier (T1–T4)
+	7. Persist results to structured output (CSV / JSON)
+Outputs
+	• Canonical Domain Reputation Dataset
+	• Raw API evidence retained
+	• Timestamped lookup results
+Error Handling
+	• Retry on transient API errors
+	• Log failures without stopping batch
+	• Rate‑limit backoff enforced
+Notes
+This playbook is mandatory before any automation or tagging.
