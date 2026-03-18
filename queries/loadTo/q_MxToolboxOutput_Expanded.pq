@@ -1,4 +1,11 @@
-// q_MxToolboxOutput (SOAR 2 – thin normalization)
+/*
+==============================================================================
+ Query Name : q_MxToolboxOutput_Expanded
+ SOAR Stage : SOAR 3 – Detail Expansion & Enrichment
+ Load To    : Connection Only
+ Expansion  : LISTS / RECORDS (Intentional)
+ Purpose    : Expand MXToolbox per-check detail lists for analyst
+*/
 let
     Source = q_MxToolboxOutput_Raw,
 

@@ -1,4 +1,18 @@
-// q_MxCommandsActive
+/*
+==============================================================================
+ Query Name : q_MxCommandsActive
+ SOAR Stage : SOAR 1 – Active Command Selection
+ Load To    : Connection Only
+ Expansion  : NONE
+ Purpose    : Filter MXToolbox command configuration based on category
+              (DNS / Network) and user-enabled switches to determine
+              which lookup commands are active for execution.
+ Dependencies :
+   - q_MxCommandsConfig
+   - pUseDnsLookups
+   - pUseNetworkLookups
+ Consumers :
+*/
 let
     Source = q_MxCommandsConfig,
 

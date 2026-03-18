@@ -1,29 +1,38 @@
-// q_MxToolboxOutput (SOAR 2 – thin normalization)
+/*
+==============================================================================
+ Query Name : q_MxToolboxOutput
+ SOAR Stage : SOAR 2 – Thin Normalization
+ Load To    : Connection Only
+ Expansion  : TABLE (Single-row envelope only)
+ Purpose    : Normalize top-level scalar MXToolbox output fields while
+              preserving 1 row = 1 SenderDomain × Command.
+ Dependencies :
+   - q_MxToolboxOutput_Raw
+ Guardrails :
+   - MUST NOT expand list fields
+   - MUST NOT reference [MxToolbox Output] after expansion
+==============================================================================
+*/
+
 let
     Source = q_MxToolboxOutput_Raw,
 
-    Projected =
-        Table.AddColumn(
+    // Expand the single-row table returned by fnMxLookupWithCache
+    Expanded =
+        Table.ExpandTableColumn(
             Source,
-            "Projection",
-            each [
-                MxCommand          = Record.FieldOrDefault([MxToolboxOutput_Raw], "Command", null),
-                MxReputation       = Record.FieldOrDefault([MxToolboxOutput_Raw], "MxRep", null),
-                MxTimeRecorded     = Record.FieldOrDefault([MxToolboxOutput_Raw], "TimeRecorded", null),
-                FailedCount        = Record.FieldOrDefault([MxToolboxOutput_Raw], "FailedCount", null),
-                WarningsCount      = Record.FieldOrDefault([MxToolboxOutput_Raw], "WarningsCount", null),
-                TimeoutsCount      = Record.FieldOrDefault([MxToolboxOutput_Raw], "TimeoutsCount", null),
-                DnsProvider        = Record.FieldOrDefault([MxToolboxOutput_Raw], "DnsProvider", null),
-                ReportingNameServer= Record.FieldOrDefault([MxToolboxOutput_Raw], "ReportingNameServer", null),
-                HasDmarcRecord     = Record.FieldOrDefault([MxToolboxOutput_Raw], "HasDmarcRecord", null)
-            ],
-            type record
-        ),
-
-    Flattened =
-        Table.ExpandRecordColumn(
-            Projected,
-            "Projection",
+            "MxToolbox Output",
+            {
+                "Command",
+                "MxRep",
+                "TimeRecorded",
+                "FailedCount",
+                "WarningsCount",
+                "TimeoutsCount",
+                "DnsProvider",
+                "ReportingNameServer",
+                "HasDmarcRecord"
+            },
             {
                 "MxCommand",
                 "MxReputation",
@@ -35,6 +44,24 @@ let
                 "ReportingNameServer",
                 "HasDmarcRecord"
             }
+        ),
+
+    // Enforce SOAR‑2 scalar schema only
+    Typed =
+        Table.TransformColumnTypes(
+            Expanded,
+            {
+                {"SenderDomain", type text},
+                {"MxCommand", type text},
+                {"MxReputation", type any},
+                {"MxTimeRecorded", type datetime},
+                {"FailedCount", Int64.Type},
+                {"WarningsCount", Int64.Type},
+                {"TimeoutsCount", Int64.Type},
+                {"DnsProvider", type text},
+                {"ReportingNameServer", type text},
+                {"HasDmarcRecord", type logical}
+            }
         )
 in
-    Flattened
+    Typed

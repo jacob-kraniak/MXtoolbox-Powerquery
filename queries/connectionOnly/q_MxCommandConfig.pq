@@ -1,4 +1,21 @@
-// q_MxCommandConfig
+/*
+==============================================================================
+ Query Name : q_MxCommandConfig
+ SOAR Stage : SOAR 1 – Command Configuration Baseline
+ Load To    : Connection Only
+ Expansion  : NONE
+ Purpose    : Define the authoritative configuration table for all supported
+              MXToolbox lookup commands, including category and enabled state.
+ Dependencies :
+   - None (static configuration table)
+ Consumers :
+   - q_MxCommandsActive
+ Guardrails :
+   - MUST remain a static, deterministic configuration source
+   - No API calls or dynamic logic in this query
+==============================================================================
+*/
+
 let
     // Core configuration table for all MXToolbox commands
     // You can toggle Enabled from the UI if you want finer control.

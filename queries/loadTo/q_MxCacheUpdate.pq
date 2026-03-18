@@ -1,29 +1,44 @@
-// qMxCacheUpdate (SOAR 1 compliant – no expansion)
+/*
+==============================================================================
+ Query Name : qMxCacheUpdate
+ SOAR Stage : SOAR 1 – Cache Maintenance
+ Load To    : Connection Only
+ Expansion  : NONE
+ Purpose    : Merge newly normalized SOAR 2 results into the persisted
+              MXToolbox cache and retain the most recent entry per
+              Domain + Command.
+ Dependencies :
+   - q_MxResultsCache
+   - q_MxToolboxOutput
+ Guardrails :
+   - MUST NOT expand raw API output
+   - Expects SOAR 2 scalar fields only
+==============================================================================
+*/
+
 let
     Cache = q_MxResultsCache,
-    LatestRaw = q_MxToolboxOutput_Raw,
 
-    LatestProjected =
-        Table.AddColumn(
-            LatestRaw,
-            "Projection",
-            each [
-                Domain        = Record.FieldOrDefault([MxToolboxOutput_Raw], "Domain", null),
-                MxCommand     = Record.FieldOrDefault([MxToolboxOutput_Raw], "Command", null),
-                MxReputation  = Record.FieldOrDefault([MxToolboxOutput_Raw], "MxRep", null),
-                MxTimeRecorded= Record.FieldOrDefault([MxToolboxOutput_Raw], "TimeRecorded", null)
-            ],
-            type record
+    // Adapt SOAR 2 output to cache schema
+    Latest =
+        Table.TransformColumns(
+            q_MxToolboxOutput,
+            {
+                {"SenderDomain", each _, type text},
+                {"MxCommand", each _, type text}
+            }
         ),
 
-    Flattened =
-        Table.ExpandRecordColumn(
-            LatestProjected,
-            "Projection",
-            {"Domain","MxCommand","MxReputation","MxTimeRecorded"}
+    LatestForCache =
+        Table.RenameColumns(
+            Latest,
+            {
+                {"SenderDomain", "Domain"}
+            }
         ),
 
-    Combined = Table.Combine({Cache, Flattened}),
+    Combined =
+        Table.Combine({Cache, LatestForCache}),
 
     Sorted =
         Table.Sort(

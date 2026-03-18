@@ -1,4 +1,19 @@
-// q_DomainList
+/*
+==============================================================================
+ Query Name : q_DomainList
+ SOAR Stage : SOAR 1 – Domain Extraction & De-duplication
+ Load To    : Connection Only
+ Expansion  : NONE
+ Purpose    : Extract, normalize, and de-duplicate sender domains from
+              envelope data to produce a clean domain list for lookup.
+ Dependencies :
+   - q_EnvelopeResults
+ Consumers :
+   - q_DomainCommandPairs
+ Guardrails :
+   - MUST remain deterministic and side-effect free
+   - No API calls or external lookups in
+*/
 let
     Source = q_EnvelopeResults,
     #"Removed Other Columns" = Table.SelectColumns(Source,{"SenderFromDomain"}),
