@@ -1,3 +1,4 @@
+```mermaid
 flowchart LR
   %% Styles
   classDef start fill:#d1fae5,stroke:#065f46,stroke-width:2px;
@@ -42,3 +43,4 @@ flowchart LR
 
   Lookup --> Output --> EndLead
   Lookup -.-> Ev
+```

@@ -1,3 +1,4 @@
+```mermaid
 ---
 config:
   layout: fixed
@@ -68,3 +69,4 @@ flowchart LR
     classDef table fill:#fef3c7,stroke:#92400e,stroke-width:1.5px
     classDef api fill:#fee2e2,stroke:#991b1b,stroke-width:1.5px
     classDef note fill:#f1f5f9,stroke:#475569,stroke-dasharray: 3 3
+```
