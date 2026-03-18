@@ -1,31 +1,29 @@
-// qMxCacheUpdate (fixed composite key)
+// qMxCacheUpdate (SOAR 1 compliant – no expansion)
 let
     Cache = q_MxResultsCache,
     LatestRaw = q_MxToolboxOutput_Raw,
 
     LatestProjected =
-        Table.SelectColumns(
+        Table.AddColumn(
             LatestRaw,
-            {
-                "MxToolbox Output.Domain",
-                "MxToolbox Output.Command",
-                "MxToolbox Output.MxRep",
-                "MxToolbox Output.TimeRecorded"
-            }
+            "Projection",
+            each [
+                Domain        = Record.FieldOrDefault([MxToolboxOutput_Raw], "Domain", null),
+                MxCommand     = Record.FieldOrDefault([MxToolboxOutput_Raw], "Command", null),
+                MxReputation  = Record.FieldOrDefault([MxToolboxOutput_Raw], "MxRep", null),
+                MxTimeRecorded= Record.FieldOrDefault([MxToolboxOutput_Raw], "TimeRecorded", null)
+            ],
+            type record
         ),
 
-    LatestRenamed =
-        Table.RenameColumns(
+    Flattened =
+        Table.ExpandRecordColumn(
             LatestProjected,
-            {
-                {"MxToolbox Output.Domain", "Domain"},
-                {"MxToolbox Output.Command", "MxCommand"},
-                {"MxToolbox Output.MxRep", "MxReputation"},
-                {"MxToolbox Output.TimeRecorded", "MxTimeRecorded"}
-            }
+            "Projection",
+            {"Domain","MxCommand","MxReputation","MxTimeRecorded"}
         ),
 
-    Combined = Table.Combine({Cache, LatestRenamed}),
+    Combined = Table.Combine({Cache, Flattened}),
 
     Sorted =
         Table.Sort(
@@ -37,7 +35,6 @@ let
             }
         ),
 
-    // Keep newest per Domain+Command
     Deduped =
         Table.Distinct(
             Sorted,

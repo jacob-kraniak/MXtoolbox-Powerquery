@@ -1,75 +1,40 @@
-// q_MxToolboxOutput_Raw (optimized for SOAR 4 evidence)
+// q_MxToolboxOutput (SOAR 2 – thin normalization)
 let
     Source = q_MxToolboxOutput_Raw,
 
-    // Optional: only keep rows likely to matter operationally
-    // (adjust condition if your tier logic is elsewhere)
-    Filtered =
-        Table.SelectRows(
+    Projected =
+        Table.AddColumn(
             Source,
-            each [MxToolbox Output.FailedCount] > 0 or [MxToolbox Output.WarningsCount] > 0
+            "Projection",
+            each [
+                MxCommand          = Record.FieldOrDefault([MxToolboxOutput_Raw], "Command", null),
+                MxReputation       = Record.FieldOrDefault([MxToolboxOutput_Raw], "MxRep", null),
+                MxTimeRecorded     = Record.FieldOrDefault([MxToolboxOutput_Raw], "TimeRecorded", null),
+                FailedCount        = Record.FieldOrDefault([MxToolboxOutput_Raw], "FailedCount", null),
+                WarningsCount      = Record.FieldOrDefault([MxToolboxOutput_Raw], "WarningsCount", null),
+                TimeoutsCount      = Record.FieldOrDefault([MxToolboxOutput_Raw], "TimeoutsCount", null),
+                DnsProvider        = Record.FieldOrDefault([MxToolboxOutput_Raw], "DnsProvider", null),
+                ReportingNameServer= Record.FieldOrDefault([MxToolboxOutput_Raw], "ReportingNameServer", null),
+                HasDmarcRecord     = Record.FieldOrDefault([MxToolboxOutput_Raw], "HasDmarcRecord", null)
+            ],
+            type record
         ),
 
-    Selected =
-        Table.SelectColumns(
-            Filtered,
-            {
-                "SenderDomain",
-                "Command.Command",
-                "Command.Category",
-                "Command.Enabled",
-                "MxToolbox Output.UID",
-                "MxToolbox Output.Domain",
-                "MxToolbox Output.Command",
-                "MxToolbox Output.TimeRecorded",
-                "MxToolbox Output.MxRep",
-                "MxToolbox Output.FailedCount",
-                "MxToolbox Output.WarningsCount",
-                "MxToolbox Output.FailedList",
-                "MxToolbox Output.WarningsList"
-            }
-        ),
-
-    Buffered = Table.Buffer(Selected),
-
-    Unpivoted =
-        Table.Unpivot(
-            Buffered,
-            {
-                "MxToolbox Output.FailedList",
-                "MxToolbox Output.WarningsList"
-            },
-            "ListType",
-            "ListValues"
-        ),
-
-    CleanListType =
-        Table.ReplaceValue(
-            Unpivoted,
-            "MxToolbox Output.",
-            "",
-            Replacer.ReplaceText,
-            {"ListType"}
-        ),
-
-    ExpandedList =
-        Table.ExpandListColumn(
-            CleanListType,
-            "ListValues"
-        ),
-
-    Renamed =
-        Table.RenameColumns(
-            ExpandedList,
-            {{"ListValues", "CheckDetail"}}
-        ),
-
-    ExpandedCheckDetail =
+    Flattened =
         Table.ExpandRecordColumn(
-            Renamed,
-            "CheckDetail",
-            {"ID", "Name", "Info", "Url", "PublicDescription", "IsExcludedByUser"},
-            {"CheckDetail.ID", "CheckDetail.Name", "CheckDetail.Info", "CheckDetail.Url", "CheckDetail.PublicDescription", "CheckDetail.IsExcludedByUser"}
+            Projected,
+            "Projection",
+            {
+                "MxCommand",
+                "MxReputation",
+                "MxTimeRecorded",
+                "FailedCount",
+                "WarningsCount",
+                "TimeoutsCount",
+                "DnsProvider",
+                "ReportingNameServer",
+                "HasDmarcRecord"
+            }
         )
 in
-    ExpandedCheckDetail
+    Flattened
