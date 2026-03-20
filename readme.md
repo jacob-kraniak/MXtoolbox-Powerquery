@@ -1,21 +1,23 @@
-#SOAR Staging Model
+
+# SOAR Staging Model
+
+**DISCLAIMER: Vibe-coding via M365 Copilot.**
 
 This project follows a staged “SOAR” pipeline design to keep Power Query deterministic, debuggable, and scalable.
 
-##SOAR 0 — Contracts (Schema Definitions)
+## SOAR 0 — Contracts (Schema Definitions)
 Value-based empty tables define canonical schemas to prevent type drift and value leakage. Examples include cache schema contracts and output contracts.
 
-##SOAR 1 — Execution & Persistence
+## SOAR 1 — Execution & Persistence
 Build the Domain × Command execution set, perform MXToolbox lookups, and maintain a persisted cache. Persistence is handled via an Access database source and contract-enforced cache maintenance queries. 
 
-##SOAR 2 — Thin Normalization (Scalar Only)
+## SOAR 2 — Thin Normalization (Scalar Only)
 Normalize only top-level scalar fields required for reporting/consumption. Avoid expanding list-heavy payloads.
 
-
-##SOAR 3 — Enrichment / Scoring / Telemetry
+## SOAR 3 — Enrichment / Scoring / Telemetry
 Produce “presentation-safe” scalar projections, deterministic scoring/tiering, and pipeline telemetry (e.g., cache hit ratio and estimated request volume). 
 
-#High-Level Data Flow
+# High-Level Data Flow
 
 1. Domain Source → persisted domain inventory (Access) read into Power Query. 
 2. Domain Normalization → trim/lowercase/dedupe into a canonical domain list. 
@@ -24,7 +26,7 @@ Produce “presentation-safe” scalar projections, deterministic scoring/tierin
 5. Cache Maintenance → merge new results into persisted cache using contract schema enforcement and dedupe to 1 row per Domain × MxCommand.
 6. SOAR 2/3 Outputs → scalar outputs, scoring, and telemetry views.
 
-#Guardrails (Non-Negotiables)
+# Guardrails (Non-Negotiables)
 These rules are enforced in query headers and should be preserved across refactors:
 
  - Contracts are value-based and side-effect free (SOAR 0).
@@ -35,7 +37,7 @@ These rules are enforced in query headers and should be preserved across refacto
  - SOAR 3 may expand details, but should remain clearly separated from reporting views.
  
 
-#Repository Layout
+# Repository Layout
 
  - params/ — reference parameter definitions (configure actual values in Power Query “Manage Parameters”).
  - functions/ — Power Query functions invoked by execution stages.
