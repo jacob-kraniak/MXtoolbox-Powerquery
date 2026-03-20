@@ -28,17 +28,6 @@ let
                 "ReportingNameServer",
                 "HasDmarcRecord"
             }
-        ),
-
-    EvidenceSummary =
-        Table.AddColumn(
-            Selected,
-            "EvidenceSummary",
-            each
-                "F:" & Text.From([FailedCount]) &
-                " W:" & Text.From([WarningsCount]) &
-                " T:" & Text.From([TimeoutsCount]),
-            type text
         )
 in
-    EvidenceSummary
+    Selected

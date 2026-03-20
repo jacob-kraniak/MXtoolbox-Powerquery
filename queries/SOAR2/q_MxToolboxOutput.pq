@@ -62,6 +62,7 @@ let
                 {"ReportingNameServer", type text},
                 {"HasDmarcRecord", type logical}
             }
-        )
+        ),
+    #"Renamed Columns" = Table.RenameColumns(Typed,{{"SenderDomain", "Domain"}})
 in
-    Typed
+    #"Renamed Columns"
