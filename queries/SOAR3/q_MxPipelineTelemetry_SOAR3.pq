@@ -10,12 +10,23 @@ let
     Source = q_MxToolboxOutput_SOAR3,
     Cache  = q_MxResultsCache,
 
-    DomainsInRun = List.Distinct(Source[SenderDomain]),
-    DomainsInCache = List.Distinct(Cache[Domain]),
+    DomainsInRun =
+        List.Distinct(Source[SenderDomain]),
 
-    DomainCount = List.Count(DomainsInRun),
-    CacheHitCount = List.Count(List.Intersect({DomainsInRun, DomainsInCache})),
-    CacheMissCount = DomainCount - CacheHitCount,
+    DomainsInCache =
+        if Table.RowCount(Cache) = 0 then
+            {}
+        else
+            List.Distinct(Cache[Domain]),
+
+    DomainCount =
+        List.Count(DomainsInRun),
+
+    CacheHitCount =
+        List.Count(List.Intersect({DomainsInRun, DomainsInCache})),
+
+    CacheMissCount =
+        DomainCount - CacheHitCount,
 
     CacheHitRatio =
         if DomainCount = 0 then 0
@@ -37,8 +48,8 @@ let
                 {"CacheHitRatio", CacheHitRatio},
                 {"CommandsPerDomain", CommandsPerDomain},
                 {"EstimatedHttpsGetRequests", EstimatedHttpsGetRequests},
-                {"ConfiguredMaxApiCalls", Number.From(pMaxApiCalls)},
-                {"ConfiguredCacheStalenessDays", Number.From(pCacheStalenessDays)}
+                {"ConfiguredMaxApiCalls", try Number.From(pMaxAPICalls) otherwise 0},
+                {"ConfiguredCacheStalenessDays", try Number.From(pCacheDays) otherwise 0}
             }
         )
 in
